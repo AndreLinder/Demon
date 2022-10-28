@@ -116,7 +116,7 @@ namespace Demon
                     await conn.OpenAsync();
 
                     //Строка запроса в БД
-                    string sql_cmd = "SELECT server_chats.messages.ID,server_chats.messages.Date_Message,server_chats.messages.Text_Message, server_chats.users.User_Name, server_chats.messages.ID_Sender, server_chats.chats.GUID FROM server_chats.messages LEFT JOIN server_chats.users ON server_chats.messages.ID_Sender = server_chats.users.ID JOIN server_chats.chats ON (server_chats.chats.ID_User_1 = ID_Sender) OR (server_chats.chats.ID_User_2 = ID_Sender) WHERE (server_chats.messages.ID_Reciever = @ID AND server_chats.messages.Visible_Message = 0 AND server_chats.messages.visible_notification = 0);";
+                    string sql_cmd = "SELECT server_chats.users.User_Name, server_chats.messages.Text_Message, server_chats.messages.ID_Sender, server_chats.chats.GUID, server_chats.messages.ID FROM server_chats.messages LEFT JOIN server_chats.users ON server_chats.messages.ID_Sender = server_chats.users.ID LEFT JOIN server_chats.chats ON ((server_chats.chats.ID_User_1 = ID_Sender) AND (server_chats.chats.ID_User_2 = @ID)) OR ((server_chats.chats.ID_User_1 = @ID) AND (server_chats.chats.ID_User_2 = ID_Sender)) WHERE (server_chats.messages.ID_Reciever = @ID AND server_chats.messages.Visible_Message = 0 AND server_chats.messages.visible_notification = 0);";
 
                     //Создаем команду для запроса
                     MySqlCommand cmd = conn.CreateCommand();
@@ -135,8 +135,8 @@ namespace Demon
                             message = "";
                             while (reader.Read())
                             {
-                                message += reader.GetString(3) + "~" + reader.GetString(2) + "~" + reader.GetString(5) + "%";
-                                id_messages.Add(int.Parse(reader.GetString(0)));
+                                message += reader.GetString(0) + "~" + reader.GetString(1) + "~" + reader.GetString(3) + "%";
+                                id_messages.Add(int.Parse(reader.GetString(4)));
                             }
                             message = message.Substring(0, message.Length - 1);
                         }
